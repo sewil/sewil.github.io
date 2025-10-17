@@ -25,6 +25,7 @@
 		<button id="calculate" disabled onclick="javascript:calculate()">Calculate</button>
 	</div>
 	<script>
+		var startDate = null;
 		var elapsedSeconds = 0;
 		var intervalID;
 		function startTimer() {
@@ -32,8 +33,12 @@
 			$('#stop-timer').attr('disabled', false);
 			$('#calculate').attr('disabled', true);
 			$('#exp-rate').val('');
+			$('#time').val('00:00:00');
+			startDate = new Date();
 			intervalID = setInterval(function() {
-				elapsedSeconds++;
+				var now = new Date();
+				var diffTime = Math.abs(now - startDate)
+				elapsedSeconds = diffTime / 1000;
 				var h = Math.floor(elapsedSeconds / 3600).toString().padStart(2, '0');
 				var m = Math.floor((elapsedSeconds - (h*3600)) / 60).toString().padStart(2, '0');
 				var s = Math.floor(elapsedSeconds - (h * 3600) - (m * 60)).toString().padStart(2, '0');
@@ -46,6 +51,7 @@
 			$('#calculate').attr('disabled', false);
 			clearInterval(intervalID);
 			intervalID = null;
+			startDate = null;
 		}
 		function calculate() {
 			var exp = $('#ending-exp').val() - $('#starting-exp').val();

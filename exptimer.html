@@ -1,0 +1,59 @@
+<html>
+<head>
+	<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body style="background-color: black;">
+	<div style="background-color: white; padding: 16px; float: left; gap: 8px; display: flex; flex-direction: column;">
+		<div>
+			<label>Starting exp</label>
+			<input id="starting-exp" />
+		</div>
+		<div>
+			<label>End exp</label>
+			<input id="ending-exp" />
+		</div>
+		<div>
+			<label>EXP/h</label>
+			<input id="exp-rate" disabled />
+		</div>
+		<div>
+			<label>Time</label>
+			<input disabled id="time" value="00:00:00"/>
+		</div>
+		<button id="start-timer" onclick="javascript:startTimer()">Start timer</button>
+		<button id="stop-timer" disabled onclick="javascript:stopTimer()">Stop timer</button>
+		<button id="calculate" disabled onclick="javascript:calculate()">Calculate</button>
+	</div>
+	<script>
+		var elapsedSeconds = 0;
+		var intervalID;
+		function startTimer() {
+			$('#start-timer').attr('disabled', true);
+			$('#stop-timer').attr('disabled', false);
+			$('#calculate').attr('disabled', true);
+			$('#exp-rate').val('');
+			intervalID = setInterval(function() {
+				elapsedSeconds++;
+				var h = Math.floor(elapsedSeconds / 3600).toString().padStart(2, '0');
+				var m = Math.floor((elapsedSeconds - (h*3600)) / 60).toString().padStart(2, '0');
+				var s = Math.floor(elapsedSeconds - (h * 3600) - (m * 60)).toString().padStart(2, '0');
+				$('#time').val(h + ':' + m + ':' + s);
+			}, 1000);
+		}
+		function stopTimer() {
+			$('#start-timer').attr('disabled', false);
+			$('#stop-timer').attr('disabled', true);
+			$('#calculate').attr('disabled', false);
+			clearInterval(intervalID);
+			intervalID = null;
+		}
+		function calculate() {
+			var exp = $('#ending-exp').val() - $('#starting-exp').val();
+			var expRate = exp / (elapsedSeconds / 3600);
+			$('#exp-rate').val(expRate);
+			
+			elapsedSeconds = 0;
+		}
+	</script>
+</body>
+</html>

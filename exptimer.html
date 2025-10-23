@@ -20,45 +20,67 @@
 			<label>Time</label>
 			<input disabled id="time" value="00:00:00"/>
 		</div>
-		<button id="start-timer" onclick="javascript:startTimer()">Start timer</button>
-		<button id="stop-timer" disabled onclick="javascript:stopTimer()">Stop timer</button>
+		<button id="toggle-timer" onclick="javascript:toggleTimer()">Start timer</button>
+		<button id="reset" disabled onclick="javascript:reset()">Reset</button>
 		<button id="calculate" disabled onclick="javascript:calculate()">Calculate</button>
 	</div>
 	<script>
 		var startDate = null;
+		var timerStarted = false;
+		var diffTime = 0;
 		var elapsedSeconds = 0;
 		var intervalID;
+		function updateTimer() {
+			var e = getElapsed();
+			var h = Math.floor(e / 3600).toString().padStart(2, '0');
+			var m = Math.floor((e - (h*3600)) / 60).toString().padStart(2, '0');
+			var s = Math.floor(e - (h * 3600) - (m * 60)).toString().padStart(2, '0');
+			$('#time').val(h + ':' + m + ':' + s);
+		}
+		function getElapsed() {
+			return elapsedSeconds + diffTime;
+		}
+		function toggleTimer() {
+			if (timerStarted) { // Stopping timer
+				stopTimer();
+			} else { // Starting timer
+				startTimer();
+			}
+		}
 		function startTimer() {
-			$('#start-timer').attr('disabled', true);
-			$('#stop-timer').attr('disabled', false);
-			$('#calculate').attr('disabled', true);
-			$('#exp-rate').val('');
-			$('#time').val('00:00:00');
+			timerStarted = true;
+			$('#toggle-timer').text('Stop timer');
+			$('#reset').attr('disabled', false);
+			$('#calculate').attr('disabled', false);
 			startDate = new Date();
 			intervalID = setInterval(function() {
 				var now = new Date();
-				var diffTime = Math.abs(now - startDate)
-				elapsedSeconds = diffTime / 1000;
-				var h = Math.floor(elapsedSeconds / 3600).toString().padStart(2, '0');
-				var m = Math.floor((elapsedSeconds - (h*3600)) / 60).toString().padStart(2, '0');
-				var s = Math.floor(elapsedSeconds - (h * 3600) - (m * 60)).toString().padStart(2, '0');
-				$('#time').val(h + ':' + m + ':' + s);
+				diffTime = Math.abs(now - startDate) / 1000;
+				updateTimer();
 			}, 1000);
 		}
 		function stopTimer() {
-			$('#start-timer').attr('disabled', false);
-			$('#stop-timer').attr('disabled', true);
-			$('#calculate').attr('disabled', false);
+			timerStarted = false;
+			$('#toggle-timer').text('Start timer');
 			clearInterval(intervalID);
 			intervalID = null;
+			elapsedSeconds += diffTime;
+			diffTime = 0;
+		}
+		function reset() {
+			stopTimer();
+			$('#calculate').attr('disabled', true);
+			$('#reset').attr('disabled', true);
+			$('#exp-rate').val('');
 			startDate = null;
+			elapsedSeconds = 0;
+			updateTimer(elapsedSeconds);
 		}
 		function calculate() {
+			var e = getElapsed();
 			var exp = $('#ending-exp').val() - $('#starting-exp').val();
-			var expRate = exp / (elapsedSeconds / 3600);
+			var expRate = exp / (e / 3600);
 			$('#exp-rate').val(expRate);
-			
-			elapsedSeconds = 0;
 		}
 	</script>
 </body>
